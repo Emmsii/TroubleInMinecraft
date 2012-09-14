@@ -12,7 +12,6 @@
  * - On player join, check if player is in constant db else add player
  * - On player death, player spawns in completely crazy stylised death place
  * - Add player stats (from constant db) command
- * BANANANANANANANANANANA Phone Biatch
  * - Change player name in chat according to whether they are in game, dead, in jail, or sheriff.
  */
 package com.tammcd.troubleinminecraft;
