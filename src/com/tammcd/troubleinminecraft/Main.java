@@ -3,13 +3,10 @@
  * - Add admin command to clear all database entries (separate commands for each db?)
  * - Add admin command to set joingame and death spawn locations
  * - Add admin command to set game and jail tp location
- * - Remove player from game.db on disconnect
- * - Add on death event
  * - Get nearest player entity to player on player death
  * - Sheriff Stick, right click on player to arrest (player sent to jail)
  * 		-> if player is roughian, Sheriff gets karma; if player is innocent, Sheriff loses karma
  * 		-> Sheriff Stick gets added damage value on each use
- * - On player join, check if player is in constant db else add player
  * - On player death, player spawns in completely crazy stylised death place
  * - Add player stats (from constant db) command
  * - Change player name in chat according to whether they are in game, dead, in jail, or sheriff.
@@ -40,6 +37,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -49,38 +47,51 @@ public class Main extends JavaPlugin {
 	public SQLite db;
 	private boolean gameRunning = false;
 
-	//STARTUP
+	// STARTUP
 	public void onEnable() {
 		this.getDataFolder().mkdir();
 		this.saveDefaultConfig();
 
 		sqlConnection();
 		sqlTableCheck();
+		logConstant();
 
 		PluginDescriptionFile pdfFile = this.getDescription();
 
-		this.logger.info(pdfFile.getName() + " (version: " + pdfFile.getVersion() + ") has been enabled!");
-		
-		//Plugin Metrics (Refer to EXPLINATIONS in the to do list) NUMBER 2
-		
-		try{
+		this.getLogger().info(pdfFile.getName() + " v" + pdfFile.getVersion() + " has been enabled!");
+
+		// Plugin Metrics (Refer to EXPLINATIONS in the to do list) NUMBER 2
+
+		try {
 			Metrics metrics = new Metrics(this);
 			metrics.start();
-		}catch (IOException e){
-			//text
+		} catch (IOException e) {
+			// text
 		}
-		
 
 		getServer().getPluginManager().registerEvents(new Listener() {
 			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerJoin(PlayerJoinEvent event) {
 				event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + Main.this.getConfig().getString("motd"));
+				putPlayerConstant(event.getPlayer().getName());
+			}
+
+			@SuppressWarnings("unused")
+			@EventHandler
+			public void playerLeave(PlayerQuitEvent event) {
+				String playerName = event.getPlayer().getName();
+				db.query("DELETE FROM game WHERE playername='" + playerName + "'");
+				if (gamePlayerCount() == 1) {
+					getServer().broadcastMessage("Player " + playerName + " left the game, leaving " + gamePlayerCount() + " player left!");
+				} else {
+					getServer().broadcastMessage("Player " + playerName + " left the game, leaving " + gamePlayerCount() + " players left.");
+				}
 			}
 		}, this);
 	}
 
-	//SHUTDOWN
+	// SHUTDOWN
 	public void onDisable() {
 		PluginDescriptionFile pdfFile = this.getDescription();
 		this.logger.info(pdfFile.getName() + " (version: " + pdfFile.getVersion() + ") has been disabled!");
@@ -100,25 +111,25 @@ public class Main extends JavaPlugin {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		//START (Refer to EXPLINATIONS in the to do list) NUMBER 1
-		
-		//Info Command
-		if(label.equalsIgnoreCase("timfo")){
+		// START (Refer to EXPLINATIONS in the to do list) NUMBER 1
+
+		// Info Command
+		if (label.equalsIgnoreCase("timfo")) {
 			PluginDescriptionFile pdfFile = this.getDescription();
 			player.sendMessage(ChatColor.RED + "Trouble In Minecraft Version " + pdfFile.getVersion());
 			player.sendMessage(ChatColor.RED + "Code: Tamfoolery, Emmsii");
 		}
-		
-		//Stats command
-		else if(label.equalsIgnoreCase("stats")){
+
+		// Stats command
+		else if (label.equalsIgnoreCase("stats")) {
 			player.sendMessage(ChatColor.GOLD + "-----Stats-----");
 			player.sendMessage(ChatColor.GOLD + "Kills: 0");
 			player.sendMessage(ChatColor.GOLD + "Deaths: 0");
 			player.sendMessage(ChatColor.GOLD + "Arrests: 0");
-			
+
 		}
-		//END
-		else if (alreadyPlayer != 1) {
+		// END
+		if (alreadyPlayer != 1) {
 
 			if (label.equalsIgnoreCase("join")) {
 				if (gameRunning) {
@@ -134,10 +145,10 @@ public class Main extends JavaPlugin {
 				}
 			}
 
-		} else{
+		} else {
 			player.sendMessage(ChatColor.RED + "You have already joined the game!");
 		}
-		
+
 		return false;
 	}
 
@@ -155,7 +166,7 @@ public class Main extends JavaPlugin {
 
 		db.query("INSERT INTO game (id, playername, isSheriff, isDead, isRoughian) VALUES(" + (playerCount + 1) + ", '" + playerName + "', 'false', 'false', 'false')");
 	}
-	
+
 	public int gamePlayerCount() {
 		int playerCount = 0;
 
@@ -167,7 +178,7 @@ public class Main extends JavaPlugin {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		return (playerCount);
 	}
 
@@ -191,5 +202,49 @@ public class Main extends JavaPlugin {
 			db.query("CREATE TABLE constant (id INT PRIMARY KEY, playername VARCHAR(255), karma INT, playCount INT, sheriffCount INT, roughianCount INT, deathCount INT)");
 			this.getLogger().info("[Trouble in Minecraft] 'constant' table has been created!");
 		}
+	}
+
+	public void putPlayerConstant(String playerName) {
+		int alreadyPlayer = 0;
+		int playerCount = 0;
+
+		try {
+			ResultSet isPlayerInGame = db.query("SELECT EXISTS(SELECT * FROM constant WHERE playername='" + playerName + "')");
+			while (isPlayerInGame.next()) {
+				alreadyPlayer = alreadyPlayer + isPlayerInGame.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		if (alreadyPlayer != 1) {
+			try {
+				ResultSet totalPlayers = db.query("SELECT COUNT(*) FROM constant");
+				while (totalPlayers.next()) {
+					playerCount = playerCount + totalPlayers.getInt(1);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+
+			db.query("INSERT INTO constant (id, playername, karma, playCount, sheriffCount, roughianCount, deathCount) VALUES(" + (playerCount + 1) + ", '" + playerName + "', 1000, 0, 0, 0, 0)");
+			this.getLogger().info("Player " + playerName + " has been added to constant.db");
+		} else {
+			this.getLogger().info("Player " + playerName + " has been found in constant.db, not adding.");
+		}
+		this.getLogger().info("There are " + (playerCount + 1) + " players stored in constant.db.");
+	}
+
+	public void logConstant() {
+		int playerCount = 0;
+		try {
+			ResultSet totalPlayers = db.query("SELECT COUNT(*) FROM constant");
+			while (totalPlayers.next()) {
+				playerCount = playerCount + totalPlayers.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		this.getLogger().info("There are " + playerCount + " players stored in constant.db.");
 	}
 }
