@@ -13,9 +13,20 @@
  * - On player death, player spawns in completely crazy stylised death place
  * - Add player stats (from constant db) command
  * - Change player name in chat according to whether they are in game, dead, in jail, or sheriff.
+ * 
+ * 
+ * EXPLINATIONS:
+ * 	- Number 1
+ * 		This is where you can start to add new commands in with an else if statement.
+ * 		In between the START and the END comment lines.
+ *  - Number 2
+ *  	This is plugin metrics, a stats feature for MC plugins.
+ *  	On the website, mcstats.org you can see the ammount of servers using the plugin and the players on the server.
+ *  	Metrics requires another class file.
  */
 package com.tammcd.troubleinminecraft;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Logger;
@@ -38,6 +49,7 @@ public class Main extends JavaPlugin {
 	public SQLite db;
 	private boolean gameRunning = false;
 
+	//STARTUP
 	public void onEnable() {
 		this.getDataFolder().mkdir();
 		this.saveDefaultConfig();
@@ -48,6 +60,16 @@ public class Main extends JavaPlugin {
 		PluginDescriptionFile pdfFile = this.getDescription();
 
 		this.logger.info(pdfFile.getName() + " (version: " + pdfFile.getVersion() + ") has been enabled!");
+		
+		//Plugin Metrics (Refer to EXPLINATIONS in the to do list) NUMBER 2
+		
+		try{
+			Metrics metrics = new Metrics(this);
+			metrics.start();
+		}catch (IOException e){
+			//text
+		}
+		
 
 		getServer().getPluginManager().registerEvents(new Listener() {
 			@SuppressWarnings("unused")
@@ -58,6 +80,7 @@ public class Main extends JavaPlugin {
 		}, this);
 	}
 
+	//SHUTDOWN
 	public void onDisable() {
 		PluginDescriptionFile pdfFile = this.getDescription();
 		this.logger.info(pdfFile.getName() + " (version: " + pdfFile.getVersion() + ") has been disabled!");
@@ -77,8 +100,25 @@ public class Main extends JavaPlugin {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
-		if (alreadyPlayer != 1) {
+		//START (Refer to EXPLINATIONS in the to do list) NUMBER 1
+		
+		//Info Command
+		if(label.equalsIgnoreCase("timfo")){
+			PluginDescriptionFile pdfFile = this.getDescription();
+			player.sendMessage(ChatColor.RED + "Trouble In Minecraft Version " + pdfFile.getVersion());
+			player.sendMessage(ChatColor.RED + "Code: Tamfoolery, Emmsii");
+		}
+		
+		//Stats command
+		else if(label.equalsIgnoreCase("stats")){
+			player.sendMessage(ChatColor.GOLD + "-----Stats-----");
+			player.sendMessage(ChatColor.GOLD + "Kills: 0");
+			player.sendMessage(ChatColor.GOLD + "Deaths: 0");
+			player.sendMessage(ChatColor.GOLD + "Arrests: 0");
+			
+		}
+		//END
+		else if (alreadyPlayer != 1) {
 
 			if (label.equalsIgnoreCase("join")) {
 				if (gameRunning) {
@@ -94,7 +134,7 @@ public class Main extends JavaPlugin {
 				}
 			}
 
-		} else {
+		} else{
 			player.sendMessage(ChatColor.RED + "You have already joined the game!");
 		}
 		

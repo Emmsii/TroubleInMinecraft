@@ -4,4 +4,8 @@ main: com.tammcd.troubleinminecraft.Main
 database: true
 commands:
     join:
-        description: Join the game!
+        description: Join the game.
+    stats:
+        description: Look at your stats.
+    timfo:
+        description: Find info on current version of TIM.
