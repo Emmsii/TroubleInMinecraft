@@ -13,6 +13,7 @@
  * - On player death, player spawns in completely crazy stylised death place
  * - Add player stats (from constant db) command
  * - Change player name in chat according to whether they are in game, dead, in jail, or sheriff.
+ * Hello
  */
 package com.tammcd.troubleinminecraft;
 
