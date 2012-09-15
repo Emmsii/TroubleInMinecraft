@@ -13,6 +13,7 @@
  * - When a match ends the players are teleported to a different map.
  * 		-> Random maps keeps things interesting.
  * 		-> Message saying "Welcome to [map name here]!"
+ * - Add functionality to leaderboard signs. Possible temp link to the config file?
  * 
  * EXPLINATIONS:
  * 	- Number 1
@@ -71,12 +72,14 @@ public class Main extends JavaPlugin {
 		}
 
 		getServer().getPluginManager().registerEvents(new Listener() {
+			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerJoin(PlayerJoinEvent event) {
 				event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + Main.this.getConfig().getString("motd"));
 				putPlayerConstant(event.getPlayer().getName());
 			}
-
+			
+			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerLeave(PlayerQuitEvent event) {
 				String playerName = event.getPlayer().getName();
