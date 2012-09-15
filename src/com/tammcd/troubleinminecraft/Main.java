@@ -13,7 +13,6 @@
  * - When a match ends the players are teleported to a different map.
  * 		-> Random maps keeps things interesting.
  * 		-> Message saying "Welcome to [map name here]!"
- * - Add functionality to leaderboard signs.
  * 
  * EXPLINATIONS:
  * 	- Number 1
@@ -41,14 +40,12 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
 	public final Logger logger = Logger.getLogger("Minecraft");
 	public static Main plugin;
 	public SQLite db;
-	public final SignListener bl = new SignListener(this);
 	private boolean gameRunning = false;
 	public final Location[] warpLocations = new Location[100];
 	public final String[] warpName = new String[100];
@@ -62,9 +59,6 @@ public class Main extends JavaPlugin {
 		sqlConnection();
 		sqlTableCheck();
 		logConstant();
-		
-		PluginManager pm = this.getServer().getPluginManager();
-		pm.registerEvents(bl, this);
 
 		PluginDescriptionFile pdfFile = this.getDescription();
 
@@ -77,15 +71,12 @@ public class Main extends JavaPlugin {
 		}
 
 		getServer().getPluginManager().registerEvents(new Listener() {
-			
-			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerJoin(PlayerJoinEvent event) {
 				event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + Main.this.getConfig().getString("motd"));
 				putPlayerConstant(event.getPlayer().getName());
 			}
 
-			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerLeave(PlayerQuitEvent event) {
 				String playerName = event.getPlayer().getName();
@@ -186,6 +177,10 @@ public class Main extends JavaPlugin {
 
 		}
 
+		if (label.equalsIgnoreCase("leave")) {
+			player.sendMessage(ChatColor.GOLD + "You have left the game.");
+			// USE removePlayer method.
+		}
 		// END
 
 		if (label.equalsIgnoreCase("join")) {
