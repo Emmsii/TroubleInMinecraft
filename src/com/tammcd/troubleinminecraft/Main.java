@@ -1,8 +1,7 @@
 /*
  * TODO List:
  * - Add admin command to clear all database entries (separate commands for each db?)
- * - Add admin command to set joingame and death spawn locations
- * - Add admin command to set game and jail tp location
+ * - Add methods to set the spawn, death point and jail locations. (Commands in game, all they do is send message)
  * - Get nearest player entity to player on player death
  * - Sheriff Stick, right click on player to arrest (player sent to jail)
  * 		-> if player is roughian, Sheriff gets karma; if player is innocent, Sheriff loses karma
@@ -10,32 +9,31 @@
  * - On player death, player spawns in completely crazy stylised death place
  * - Add player stats (from constant db) command
  * - Change player name in chat according to whether they are in game, dead, in jail, or sheriff.
- * 
+ * - Add /leave command. Player will leave match and go back to spawn.
  * 
  * EXPLINATIONS:
  * 	- Number 1
  * 		This is where you can start to add new commands in with an else if statement.
  * 		In between the START and the END comment lines.
- *  - Number 2
- *  	This is plugin metrics, a stats feature for MC plugins.
- *  	On the website, mcstats.org you can see the ammount of servers using the plugin and the players on the server.
- *  	Metrics requires another class file.
  */
 package com.tammcd.troubleinminecraft;
 
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import lib.PatPeter.SQLibrary.SQLite;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -46,7 +44,10 @@ public class Main extends JavaPlugin {
 	public static Main plugin;
 	public SQLite db;
 	private boolean gameRunning = false;
-
+	public final Location[] warpLocations = new Location[100];
+	public final String[] warpName = new String[100];
+	public int warpCounter = 0;
+	
 	// STARTUP
 	public void onEnable() {
 		this.getDataFolder().mkdir();
@@ -60,13 +61,10 @@ public class Main extends JavaPlugin {
 
 		this.getLogger().info(pdfFile.getName() + " v" + pdfFile.getVersion() + " has been enabled!");
 
-		// Plugin Metrics (Refer to EXPLINATIONS in the to do list) NUMBER 2
-
 		try {
 			Metrics metrics = new Metrics(this);
 			metrics.start();
 		} catch (IOException e) {
-			// text
 		}
 
 		getServer().getPluginManager().registerEvents(new Listener() {
@@ -113,14 +111,67 @@ public class Main extends JavaPlugin {
 		}
 		// START (Refer to EXPLINATIONS in the to do list) NUMBER 1
 
-		// Info Command
-		if (label.equalsIgnoreCase("timfo")) {
+		if(label.equalsIgnoreCase("timhelp")){
+			if(player.isOp()){
+				//Might set the help as a list in config and pull it from there. Easier to edit when a plugin.
+				player.sendMessage(ChatColor.GOLD + "Trouble in Minecraft Help " + ChatColor.RED + "(Admin)" + ChatColor.RED + ":");
+				player.sendMessage(ChatColor.GOLD + "----------------------------------------------");
+				player.sendMessage(ChatColor.GOLD + "/join - Player will join ongoing match.");
+				player.sendMessage(ChatColor.GOLD + "/stats - Look at your stats (Not implemented)");
+				player.sendMessage(ChatColor.GOLD + "/timfo - Displays the version of TIM.");
+				player.sendMessage(ChatColor.GOLD + "/timspawn - Sets the spawn for matches.");
+				player.sendMessage(ChatColor.GOLD + "/timdeath - Sets the death location.");
+				player.sendMessage(ChatColor.GOLD + "/timarrest - Sets the jail location.");
+				
+			}else{
+				player.sendMessage(ChatColor.GOLD + "Trouble in Minecraft Help (Reg):");
+				player.sendMessage(ChatColor.GOLD + "----------------------------------------------");
+				player.sendMessage(ChatColor.GOLD + "/join - Player will join ongoing match.");
+				player.sendMessage(ChatColor.GOLD + "/stats - Look at your stats (Not implemented)");
+			}
+		}
+		
+		if(label.equalsIgnoreCase("timspawn"))
+			if(player.isOp()){
+				if(args.length == 0){
+					player.sendMessage(ChatColor.RED + "/timspawn <spawnname>");
+				}else{
+					Location location = player.getLocation();
+					if(!(warpCounter > 100)){
+						warpLocations[warpCounter] = location;
+						warpName[warpCounter] = args[0];
+						warpCounter++;
+						player.sendMessage(ChatColor.RED + "Spawn " + args[0] + " has been set.");
+					}else{
+						player.sendMessage(ChatColor.RED + "Spawn limmit exceeded, unable to create spawn.");
+					}
+				}
+				
+			}else{
+				player.sendMessage(ChatColor.GOLD + "You do not have the permissions to use that command.");
+			}
+				
+		if(label.equalsIgnoreCase("timdeath")){
+			if(player.isOp()){
+				player.sendMessage(ChatColor.RED + "Death point has been set.");
+			}else{
+				player.sendMessage(ChatColor.GOLD + "You do not have the permissions to use that command.");
+			}
+		if(label.equalsIgnoreCase("timarrest")){
+			if(player.isOp()){
+				player.sendMessage(ChatColor.RED + "Jail spawn has been set.");
+			}else{
+				player.sendMessage(ChatColor.GOLD + "You do not have the permissions to use that command.");
+				 }
+			}
+		}
+		
+		else if (label.equalsIgnoreCase("timfo")){
 			PluginDescriptionFile pdfFile = this.getDescription();
 			player.sendMessage(ChatColor.RED + "Trouble In Minecraft Version " + pdfFile.getVersion());
 			player.sendMessage(ChatColor.RED + "Code: Tamfoolery, Emmsii");
 		}
 
-		// Stats command
 		else if (label.equalsIgnoreCase("stats")) {
 			player.sendMessage(ChatColor.GOLD + "-----Stats-----");
 			player.sendMessage(ChatColor.GOLD + "Kills: 0");
@@ -128,14 +179,44 @@ public class Main extends JavaPlugin {
 			player.sendMessage(ChatColor.GOLD + "Arrests: 0");
 
 		}
+		
+		else if(label.equalsIgnoreCase("leave")){
+			player.sendMessage(ChatColor.GOLD + "You have left the game.");
+			//USE removePlayer method.
+		}
 		// END
+		
 		if (alreadyPlayer != 1) {
 
 			if (label.equalsIgnoreCase("join")) {
 				if (gameRunning) {
-					player.sendMessage(ChatColor.GOLD + "You have joined a game in progress!");
+					player.sendMessage(ChatColor.GOLD + "You have joined a game in progress.");
+					Random object = new Random();
+					int test;
+					for(int counter =1; counter<=1; counter++){
+						test = 1 + object.nextInt(3);
+						if(test == 1){
+							player.sendMessage(ChatColor.GREEN + "You are innocent.");
+						}else if(test == 2){
+							player.sendMessage(ChatColor.RED + "You are a roughian");
+						}else if(test == 3){
+							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
+						}
+					}
 				} else {
 					player.sendMessage(ChatColor.GOLD + "You have joined! The game will start shortly...");
+					Random object = new Random();
+					int test;
+					for(int counter =1; counter<=1; counter++){
+						test = 1 + object.nextInt(3);
+						if(test == 1){
+							player.sendMessage(ChatColor.GREEN + "You are innocent.");
+						}else if(test == 2){
+							player.sendMessage(ChatColor.RED + "You are a roughian");
+						}else if(test == 3){
+							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
+						}
+					}
 				}
 				addPlayer(player, playerName);
 				if (gamePlayerCount() == 1) {
@@ -166,7 +247,12 @@ public class Main extends JavaPlugin {
 
 		db.query("INSERT INTO game (id, playername, isSheriff, isDead, isRoughian) VALUES(" + (playerCount + 1) + ", '" + playerName + "', 'false', 'false', 'false')");
 	}
-
+	
+	
+	public void removePlayer(Player player, String playerName){
+		//INSERT METHOD TO REMOVE PLAYER FROM DATABASE HERE.
+		}
+	
 	public int gamePlayerCount() {
 		int playerCount = 0;
 
@@ -246,5 +332,22 @@ public class Main extends JavaPlugin {
 			e.printStackTrace();
 		}
 		this.getLogger().info("There are " + playerCount + " players stored in constant.db.");
+	}
+	
+	//Starting of the stick Sheriff's get.
+	public void onPlayerInteract(PlayerInteractEvent event){
+		Player player = event.getPlayer();
+		int itemId = player.getItemInHand().getType().getId();
+		if(itemId == 280){
+			arrestPlayer();
+		}
+	}
+	
+	public void arrestPlayer(){
+		
+	}
+	
+	public void playerDeath(){
+		
 	}
 }

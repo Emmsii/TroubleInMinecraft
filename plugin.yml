@@ -1,11 +1,22 @@
 name: Trouble in Minecraft
-version: 0.0.8
+version: 0.0.14
 main: com.tammcd.troubleinminecraft.Main
 database: true
 commands:
     join:
-        description: Join the game.
+        description: Join the match.
     stats:
         description: Look at your stats.
     timfo:
         description: Find info on current version of TIM.
+    timhelp:
+        description: Help page for TIM.
+    timspawn:
+        description: Sets spawn point for matches.
+    timdeath:
+        description: Sets death location.
+    timarrest:
+        description: Sets jail location.
+    leave:
+        description: You will leave the match.
+        
