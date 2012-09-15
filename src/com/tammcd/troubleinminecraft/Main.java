@@ -10,6 +10,9 @@
  * - Add player stats (from constant db) command
  * - Change player name in chat according to whether they are in game, dead, in jail, or sheriff.
  * - Add /leave command. Player will leave match and go back to spawn.
+ * - When a match ends the players are teleported to a different map.
+ * 		-> Random maps keeps things interesting.
+ * 		-> Message saying "Welcome to [map name here]!"
  * 
  * EXPLINATIONS:
  * 	- Number 1
