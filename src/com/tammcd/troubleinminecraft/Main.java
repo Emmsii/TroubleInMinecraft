@@ -47,7 +47,7 @@ public class Main extends JavaPlugin {
 	public final Location[] warpLocations = new Location[100];
 	public final String[] warpName = new String[100];
 	public int warpCounter = 0;
-	
+
 	// STARTUP
 	public void onEnable() {
 		this.getDataFolder().mkdir();
@@ -68,23 +68,16 @@ public class Main extends JavaPlugin {
 		}
 
 		getServer().getPluginManager().registerEvents(new Listener() {
-			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerJoin(PlayerJoinEvent event) {
 				event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + Main.this.getConfig().getString("motd"));
 				putPlayerConstant(event.getPlayer().getName());
 			}
 
-			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerLeave(PlayerQuitEvent event) {
 				String playerName = event.getPlayer().getName();
-				db.query("DELETE FROM game WHERE playername='" + playerName + "'");
-				if (gamePlayerCount() == 1) {
-					getServer().broadcastMessage("Player " + playerName + " left the game, leaving " + gamePlayerCount() + " player left!");
-				} else {
-					getServer().broadcastMessage("Player " + playerName + " left the game, leaving " + gamePlayerCount() + " players left.");
-				}
+				playerLeaveGame(playerName);
 			}
 		}, this);
 	}
@@ -111,9 +104,10 @@ public class Main extends JavaPlugin {
 		}
 		// START (Refer to EXPLINATIONS in the to do list) NUMBER 1
 
-		if(label.equalsIgnoreCase("timhelp")){
-			if(player.isOp()){
-				//Might set the help as a list in config and pull it from there. Easier to edit when a plugin.
+		if (label.equalsIgnoreCase("timhelp")) {
+			if (player.isOp()) {
+				// Might set the help as a list in config and pull it from
+				// there. Easier to edit when a plugin.
 				player.sendMessage(ChatColor.GOLD + "Trouble in Minecraft Help " + ChatColor.RED + "(Admin)" + ChatColor.RED + ":");
 				player.sendMessage(ChatColor.GOLD + "----------------------------------------------");
 				player.sendMessage(ChatColor.GOLD + "/join - Player will join ongoing match.");
@@ -122,70 +116,70 @@ public class Main extends JavaPlugin {
 				player.sendMessage(ChatColor.GOLD + "/timspawn - Sets the spawn for matches.");
 				player.sendMessage(ChatColor.GOLD + "/timdeath - Sets the death location.");
 				player.sendMessage(ChatColor.GOLD + "/timarrest - Sets the jail location.");
-				
-			}else{
+
+			} else {
 				player.sendMessage(ChatColor.GOLD + "Trouble in Minecraft Help (Reg):");
 				player.sendMessage(ChatColor.GOLD + "----------------------------------------------");
 				player.sendMessage(ChatColor.GOLD + "/join - Player will join ongoing match.");
 				player.sendMessage(ChatColor.GOLD + "/stats - Look at your stats (Not implemented)");
 			}
 		}
-		
-		if(label.equalsIgnoreCase("timspawn"))
-			if(player.isOp()){
-				if(args.length == 0){
+
+		if (label.equalsIgnoreCase("timspawn"))
+			if (player.isOp()) {
+				if (args.length == 0) {
 					player.sendMessage(ChatColor.RED + "/timspawn <spawnname>");
-				}else{
+				} else {
 					Location location = player.getLocation();
-					if(!(warpCounter > 100)){
+					if (!(warpCounter > 100)) {
 						warpLocations[warpCounter] = location;
 						warpName[warpCounter] = args[0];
 						warpCounter++;
 						player.sendMessage(ChatColor.RED + "Spawn " + args[0] + " has been set.");
-					}else{
+					} else {
 						player.sendMessage(ChatColor.RED + "Spawn limmit exceeded, unable to create spawn.");
 					}
 				}
-				
-			}else{
+
+			} else {
 				player.sendMessage(ChatColor.GOLD + "You do not have the permissions to use that command.");
 			}
-				
-		if(label.equalsIgnoreCase("timdeath")){
-			if(player.isOp()){
+
+		if (label.equalsIgnoreCase("timdeath")) {
+			if (player.isOp()) {
 				player.sendMessage(ChatColor.RED + "Death point has been set.");
-			}else{
+			} else {
 				player.sendMessage(ChatColor.GOLD + "You do not have the permissions to use that command.");
 			}
-		if(label.equalsIgnoreCase("timarrest")){
-			if(player.isOp()){
-				player.sendMessage(ChatColor.RED + "Jail spawn has been set.");
-			}else{
-				player.sendMessage(ChatColor.GOLD + "You do not have the permissions to use that command.");
-				 }
+			if (label.equalsIgnoreCase("timarrest")) {
+				if (player.isOp()) {
+					player.sendMessage(ChatColor.RED + "Jail spawn has been set.");
+				} else {
+					player.sendMessage(ChatColor.GOLD + "You do not have the permissions to use that command.");
+				}
 			}
 		}
-		
-		else if (label.equalsIgnoreCase("timfo")){
+
+		if (label.equalsIgnoreCase("timfo")) {
 			PluginDescriptionFile pdfFile = this.getDescription();
 			player.sendMessage(ChatColor.RED + "Trouble In Minecraft Version " + pdfFile.getVersion());
 			player.sendMessage(ChatColor.RED + "Code: Tamfoolery, Emmsii");
 		}
 
-		else if (label.equalsIgnoreCase("stats")) {
+		if (label.equalsIgnoreCase("stats")) {
 			player.sendMessage(ChatColor.GOLD + "-----Stats-----");
 			player.sendMessage(ChatColor.GOLD + "Kills: 0");
 			player.sendMessage(ChatColor.GOLD + "Deaths: 0");
 			player.sendMessage(ChatColor.GOLD + "Arrests: 0");
 
 		}
-		
-		else if(label.equalsIgnoreCase("leave")){
+
+		if (label.equalsIgnoreCase("leave")) {
 			player.sendMessage(ChatColor.GOLD + "You have left the game.");
-			//USE removePlayer method.
+			// USE removePlayer method.
 		}
 		// END
-		
+
 		if (alreadyPlayer != 1) {
 
 			if (label.equalsIgnoreCase("join")) {
@@ -193,13 +187,13 @@ public class Main extends JavaPlugin {
 					player.sendMessage(ChatColor.GOLD + "You have joined a game in progress.");
 					Random object = new Random();
 					int test;
-					for(int counter =1; counter<=1; counter++){
+					for (int counter = 1; counter <= 1; counter++) {
 						test = 1 + object.nextInt(3);
-						if(test == 1){
+						if (test == 1) {
 							player.sendMessage(ChatColor.GREEN + "You are innocent.");
-						}else if(test == 2){
+						} else if (test == 2) {
 							player.sendMessage(ChatColor.RED + "You are a roughian");
-						}else if(test == 3){
+						} else if (test == 3) {
 							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
 						}
 					}
@@ -207,13 +201,13 @@ public class Main extends JavaPlugin {
 					player.sendMessage(ChatColor.GOLD + "You have joined! The game will start shortly...");
 					Random object = new Random();
 					int test;
-					for(int counter =1; counter<=1; counter++){
+					for (int counter = 1; counter <= 1; counter++) {
 						test = 1 + object.nextInt(3);
-						if(test == 1){
+						if (test == 1) {
 							player.sendMessage(ChatColor.GREEN + "You are innocent.");
-						}else if(test == 2){
+						} else if (test == 2) {
 							player.sendMessage(ChatColor.RED + "You are a roughian");
-						}else if(test == 3){
+						} else if (test == 3) {
 							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
 						}
 					}
@@ -247,12 +241,11 @@ public class Main extends JavaPlugin {
 
 		db.query("INSERT INTO game (id, playername, isSheriff, isDead, isRoughian) VALUES(" + (playerCount + 1) + ", '" + playerName + "', 'false', 'false', 'false')");
 	}
-	
-	
-	public void removePlayer(Player player, String playerName){
-		//INSERT METHOD TO REMOVE PLAYER FROM DATABASE HERE.
-		}
-	
+
+	public void removePlayer(Player player, String playerName) {
+		playerLeaveGame(playerName);
+	}
+
 	public int gamePlayerCount() {
 		int playerCount = 0;
 
@@ -333,21 +326,30 @@ public class Main extends JavaPlugin {
 		}
 		this.getLogger().info("There are " + playerCount + " players stored in constant.db.");
 	}
-	
-	//Starting of the stick Sheriff's get.
-	public void onPlayerInteract(PlayerInteractEvent event){
+
+	// Starting of the stick Sheriff's get.
+	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
 		int itemId = player.getItemInHand().getType().getId();
-		if(itemId == 280){
+		if (itemId == 280) {
 			arrestPlayer();
 		}
 	}
-	
-	public void arrestPlayer(){
-		
+
+	public void arrestPlayer() {
+
 	}
-	
-	public void playerDeath(){
-		
+
+	public void playerDeath() {
+
+	}
+
+	public void playerLeaveGame(String playerName) {
+		db.query("DELETE FROM game WHERE playername='" + playerName + "'");
+		if (gamePlayerCount() == 1) {
+			getServer().broadcastMessage("Player " + playerName + " left the game, leaving " + gamePlayerCount() + " player left!");
+		} else {
+			getServer().broadcastMessage("Player " + playerName + " left the game, leaving " + gamePlayerCount() + " players left.");
+		}
 	}
 }
