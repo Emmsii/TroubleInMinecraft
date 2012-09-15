@@ -183,9 +183,8 @@ public class Main extends JavaPlugin {
 		}
 		// END
 
-		if (alreadyPlayer != 1) {
-
-			if (label.equalsIgnoreCase("join")) {
+		if (label.equalsIgnoreCase("join")) {
+			if (alreadyPlayer != 1) {
 				if (gameRunning) {
 					player.sendMessage(ChatColor.GOLD + "You have joined a game in progress.");
 					Random object = new Random();
@@ -221,10 +220,10 @@ public class Main extends JavaPlugin {
 				} else {
 					getServer().broadcastMessage("There are now " + gamePlayerCount() + " players in game.");
 				}
-			}
 
-		} else {
-			player.sendMessage(ChatColor.RED + "You have already joined the game!");
+			} else {
+				player.sendMessage(ChatColor.RED + "You have already joined the game!");
+			}
 		}
 
 		return false;
