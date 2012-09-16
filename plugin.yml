@@ -1,5 +1,5 @@
 name: Trouble in Minecraft
-version: 0.0.19
+version: 0.0.24
 main: com.tammcd.troubleinminecraft.Main
 database: true
 commands:
@@ -19,4 +19,6 @@ commands:
         description: Sets jail location.
     leave:
         description: You will leave the match.
+    update:
+        description: Updates the plugin.
         

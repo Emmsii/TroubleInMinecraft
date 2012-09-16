@@ -32,15 +32,18 @@ import lib.PatPeter.SQLibrary.SQLite;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Main extends JavaPlugin {
@@ -48,18 +51,28 @@ public class Main extends JavaPlugin {
 	public static Main plugin;
 	public SQLite db;
 	private boolean gameRunning = false;
+	public final SignListener sl = new SignListener(this);
+	public final PlayerHitListener phl = new PlayerHitListener(this);
 	public final Location[] warpLocations = new Location[100];
 	public final String[] warpName = new String[100];
 	public int warpCounter = 0;
+	public Object config;
 
+	
+	
 	// STARTUP
 	public void onEnable() {
 		this.getDataFolder().mkdir();
 		this.saveDefaultConfig();
-
+		
 		sqlConnection();
 		sqlTableCheck();
 		logConstant();
+		
+		
+		PluginManager pm = this.getServer().getPluginManager();
+		pm.registerEvents(sl, this);
+		pm.registerEvents(phl, this);
 
 		PluginDescriptionFile pdfFile = this.getDescription();
 
@@ -68,7 +81,7 @@ public class Main extends JavaPlugin {
 		try {
 			Metrics metrics = new Metrics(this);
 			metrics.start();
-		} catch (IOException e) {
+			} catch (IOException e) {
 		}
 
 		getServer().getPluginManager().registerEvents(new Listener() {
@@ -94,7 +107,7 @@ public class Main extends JavaPlugin {
 		this.logger.info(pdfFile.getName() + " (version: " + pdfFile.getVersion() + ") has been disabled!");
 		db.close();
 	}
-
+	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		Player player = (Player) sender;
 		String playerName = player.getName();
@@ -169,7 +182,7 @@ public class Main extends JavaPlugin {
 		if (label.equalsIgnoreCase("timfo")) {
 			PluginDescriptionFile pdfFile = this.getDescription();
 			player.sendMessage(ChatColor.RED + "Trouble In Minecraft Version " + pdfFile.getVersion());
-			player.sendMessage(ChatColor.RED + "Code: Tamfoolery, Emmsii");
+			player.sendMessage(ChatColor.RED + "By Tamfoolery and Emmsii");
 		}
 
 		if (label.equalsIgnoreCase("stats")) {
@@ -179,11 +192,23 @@ public class Main extends JavaPlugin {
 			player.sendMessage(ChatColor.GOLD + "Arrests: 0");
 
 		}
-
+		
 		if (label.equalsIgnoreCase("leave")) {
 			player.sendMessage(ChatColor.GOLD + "You have left the game.");
-			// USE removePlayer method.
+			player.setPlayerListName(ChatColor.WHITE + player.getName());
+			ItemStack stick = new ItemStack(Material.STICK, 1);
+			PlayerInventory pi = player.getInventory();
+			pi.removeItem(stick);
+				db.query("DELETE FROM game WHERE playername='" + playerName + "'");
+				if (gamePlayerCount() == 1) {
+					getServer().broadcastMessage(ChatColor.GOLD + "Player " + playerName + " left the game, leaving " + gamePlayerCount() + " player left!");
+					
+					} else {
+					getServer().broadcastMessage(ChatColor.GOLD + "Player " + playerName + " left the game, leaving " + gamePlayerCount() + " players left.");
+			}
+			
 		}
+		
 		// END
 
 		if (label.equalsIgnoreCase("join")) {
@@ -191,6 +216,7 @@ public class Main extends JavaPlugin {
 				if (gameRunning) {
 					player.sendMessage(ChatColor.GOLD + "You have joined a game in progress.");
 					Random object = new Random();
+					
 					int test;
 					for (int counter = 1; counter <= 1; counter++) {
 						test = 1 + object.nextInt(3);
@@ -200,6 +226,10 @@ public class Main extends JavaPlugin {
 							player.sendMessage(ChatColor.RED + "You are a roughian");
 						} else if (test == 3) {
 							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
+							player.sendMessage(ChatColor.GOLD + "You have received a Lookin' Stick.");
+							ItemStack stick = new ItemStack(Material.STICK, 1);
+							PlayerInventory pi = player.getInventory();
+							pi.addItem(stick);
 						}
 					}
 				} else {
@@ -214,6 +244,10 @@ public class Main extends JavaPlugin {
 							player.sendMessage(ChatColor.RED + "You are a roughian");
 						} else if (test == 3) {
 							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
+							player.sendMessage(ChatColor.GOLD + "You have received a Lookin' Stick.");
+							ItemStack stick = new ItemStack(Material.STICK, 1);
+							PlayerInventory pi = player.getInventory();
+							pi.addItem(stick);
 						}
 					}
 				}
@@ -250,7 +284,7 @@ public class Main extends JavaPlugin {
 	public void removePlayer(Player player, String playerName) {
 		playerLeaveGame(playerName);
 	}
-
+	
 	public int gamePlayerCount() {
 		int playerCount = 0;
 
@@ -265,7 +299,7 @@ public class Main extends JavaPlugin {
 
 		return (playerCount);
 	}
-
+	
 	public void sqlConnection() {
 		db = new SQLite(this.getLogger(), "Trouble in Minecraft", "game", this.getDataFolder().getPath());
 
@@ -332,6 +366,7 @@ public class Main extends JavaPlugin {
 		this.getLogger().info("There are " + playerCount + " players stored in constant.db.");
 	}
 
+	/*
 	// Starting of the stick Sheriff's get.
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
@@ -344,7 +379,7 @@ public class Main extends JavaPlugin {
 	public void arrestPlayer() {
 
 	}
-
+	*/
 	public void playerDeath() {
 
 	}
@@ -353,7 +388,8 @@ public class Main extends JavaPlugin {
 		db.query("DELETE FROM game WHERE playername='" + playerName + "'");
 		if (gamePlayerCount() == 1) {
 			getServer().broadcastMessage("Player " + playerName + " left the game, leaving " + gamePlayerCount() + " player left!");
-		} else {
+			
+			} else {
 			getServer().broadcastMessage("Player " + playerName + " left the game, leaving " + gamePlayerCount() + " players left.");
 		}
 	}
