@@ -46,6 +46,26 @@ public class PlayerHitListener implements Listener{
 	         Player player1 = event.getPlayer();
 	         player1.sendMessage(ChatColor.GOLD + "You have arrested " + player2.getName() + ".");
 	         player2.sendMessage(ChatColor.RED + player1.getName() + " has arrested you.");
+	     }else{
+	    	if ((event.getRightClicked() instanceof Entity) && (event.getPlayer().getItemInHand().getType() == Material.STICK)) {
+	    		Player player = event.getPlayer();
+	    		player.sendMessage(ChatColor.RED + "Watchu doin! You can't arrest that!");
+	    	}
+	     }
+	 }
+	 
+	 @EventHandler
+	 public void clickWithStickTick(PlayerInteractEntityEvent event) {
+	     if ((event.getRightClicked() instanceof Player) && (event.getPlayer().getItemInHand().getType() == Material.BONE)) {
+	         Player player2 = (Player) event.getRightClicked();
+	         Player player1 = event.getPlayer();
+	         player1.sendMessage(ChatColor.GOLD + player2.getName() + " has been alive for " + player2.getTicksLived() + " ticks.");
+	         player2.sendMessage(ChatColor.RED + player1.getName() + " has seen how many ticks you have been alive.");
+	     }else{
+	    	 if ((event.getRightClicked() instanceof Entity) && (event.getPlayer().getItemInHand().getType() == Material.BONE)) {
+	    		 Player player = event.getPlayer();
+	    		 player.sendMessage(ChatColor.RED + "Watchu doin! You can't see how many ticks this has lived!");
+	    	}
 	     }
 	 }
 }

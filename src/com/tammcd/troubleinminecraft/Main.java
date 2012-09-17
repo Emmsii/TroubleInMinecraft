@@ -49,6 +49,8 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class Main extends JavaPlugin {
 	public final Logger logger = Logger.getLogger("Minecraft");
@@ -127,7 +129,7 @@ public class Main extends JavaPlugin {
 		}
 		
 		if(label.equalsIgnoreCase("spectate")){
-			player.sendMessage("You are now spectating.");		
+			player.sendMessage("You are now spectating.");
 		}
 		
 		//This command spawns a chest above your head with all of your inventory in it.
@@ -233,7 +235,9 @@ public class Main extends JavaPlugin {
 			ItemStack stick = new ItemStack(Material.STICK, 1);
 			PlayerInventory pi = player.getInventory();
 			player.setGameMode(GameMode.SURVIVAL);
-			pi.removeItem(stick);
+			player.removePotionEffect(PotionEffectType.FAST_DIGGING);
+			player.getInventory().clear();
+			player.setHealth(20);
 				db.query("DELETE FROM game WHERE playername='" + playerName + "'");
 				if (gamePlayerCount() == 1) {
 					getServer().broadcastMessage(ChatColor.GOLD + "Player " + playerName + " left the game, leaving " + gamePlayerCount() + " player left!");
@@ -251,19 +255,24 @@ public class Main extends JavaPlugin {
 					player.sendMessage(ChatColor.GOLD + "You have joined a game in progress.");
 					Random object = new Random();
 					
+					//Things to do when player joins
+					player.setGameMode(GameMode.ADVENTURE);
+					player.getInventory().clear();
+					player.setHealth(20);
+					player.setTicksLived(0);
+					player.setFoodLevel(20);
+					
 					int test;
 					for (int counter = 1; counter <= 1; counter++) {
 						test = 1 + object.nextInt(3);
 						if (test == 1) {
 							player.sendMessage(ChatColor.GREEN + "You are innocent.");
-							player.setGameMode(GameMode.ADVENTURE);
 						} else if (test == 2) {
 							player.sendMessage(ChatColor.RED + "You are a roughian");
-							player.setGameMode(GameMode.ADVENTURE);
 						} else if (test == 3) {
 							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
-							player.setGameMode(GameMode.ADVENTURE);
 							player.sendMessage(ChatColor.GOLD + "You have received a Lookin' Stick.");
+							player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 50000, 0));
 							ItemStack stick = new ItemStack(Material.STICK, 1);
 							PlayerInventory pi = player.getInventory();
 							pi.addItem(stick);
@@ -277,14 +286,12 @@ public class Main extends JavaPlugin {
 						test = 1 + object.nextInt(3);
 						if (test == 1) {
 							player.sendMessage(ChatColor.GREEN + "You are innocent.");
-							player.setGameMode(GameMode.ADVENTURE);
 						} else if (test == 2) {
 							player.sendMessage(ChatColor.RED + "You are a roughian");
-							player.setGameMode(GameMode.ADVENTURE);
 						} else if (test == 3) {
 							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
-							player.setGameMode(GameMode.ADVENTURE);
 							player.sendMessage(ChatColor.GOLD + "You have received a Lookin' Stick.");
+							player.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 50000, 0));
 							ItemStack stick = new ItemStack(Material.STICK, 1);
 							PlayerInventory pi = player.getInventory();
 							pi.addItem(stick);
