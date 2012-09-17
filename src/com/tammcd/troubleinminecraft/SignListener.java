@@ -53,21 +53,6 @@ public class SignListener implements Listener{
 			player.sendMessage(ChatColor.GOLD + "The sign has been turned into an EXAMPLE leaderboard");
 			sign.setLine(0, ChatColor.UNDERLINE + "Top Kills:");
 			sign.setLine(1, "Tamfoolery" + ":" + "2");
-			sign.setLine(2,ChatColor.LIGHT_PURPLE + "Look, colours!");
 		}
 	}
-	
-	
-	/*
-    @EventHandler
-    public void onSignCreate(SignChangeEvent sign){
-        Player player = sign.getPlayer();
-        if(sign.getLine(0).equalsIgnoreCase("example")){
-            player.sendMessage(ChatColor.GOLD + "The sign has been changed");
-            sign.setLine(0, motd);
- 
-        }
-    }
-    
-    */
 }

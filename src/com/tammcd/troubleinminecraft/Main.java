@@ -13,7 +13,8 @@
  * - When a match ends the players are teleported to a different map.
  * 		-> Random maps keeps things interesting.
  * 		-> Message saying "Welcome to [map name here]!"
- * - Add functionality to leaderboard signs. Possible temp link to the config file?
+ * - Add functionality to leaderboard signs. Link to database.
+ * - Add functionality to /spectate command.
  * 
  * EXPLINATIONS:
  * 	- Number 1
@@ -31,8 +32,11 @@ import java.util.logging.Logger;
 import lib.PatPeter.SQLibrary.SQLite;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Chest;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -56,9 +60,7 @@ public class Main extends JavaPlugin {
 	public final Location[] warpLocations = new Location[100];
 	public final String[] warpName = new String[100];
 	public int warpCounter = 0;
-	public Object config;
-
-	
+	public Object config;	
 	
 	// STARTUP
 	public void onEnable() {
@@ -108,6 +110,7 @@ public class Main extends JavaPlugin {
 		db.close();
 	}
 	
+	@SuppressWarnings({ "unused" })
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		Player player = (Player) sender;
 		String playerName = player.getName();
@@ -121,8 +124,38 @@ public class Main extends JavaPlugin {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		// START (Refer to EXPLINATIONS in the to do list) NUMBER 1
-
+		
+		if(label.equalsIgnoreCase("spectate")){
+			player.sendMessage("You are now spectating.");		
+		}
+		
+		//This command spawns a chest above your head with all of your inventory in it.
+		if(label.equalsIgnoreCase("chest")){
+			if(sender instanceof Player){
+				Player player1 = (Player) sender;
+				Location pl = player.getLocation();
+				World world = player.getWorld();
+				Location cl = new Location(world, pl.getX(), pl.getY() + 2, pl.getZ());
+				
+				cl.getBlock().setType(Material.CHEST);
+				Chest chest = (Chest) cl.getBlock().getState();
+				
+				ItemStack[] inventoryBefore = player.getInventory().getContents();
+				ItemStack[] chestContents = new ItemStack[inventoryBefore.length];
+				
+				for(int i = 0; i < player.getInventory().getSize(); i++){
+					chestContents[i] = inventoryBefore[i];
+				}
+				
+				for(int i = 0; i < chest.getInventory().getSize(); i++){
+					if(chestContents[i] != null){
+						chest.getInventory().addItem(chestContents[i]);
+					}
+				}
+				player.getInventory().clear();
+			}return true;
+		}
+		
 		if (label.equalsIgnoreCase("timhelp")) {
 			if (player.isOp()) {
 				// Might set the help as a list in config and pull it from
@@ -198,11 +231,11 @@ public class Main extends JavaPlugin {
 			player.setPlayerListName(ChatColor.WHITE + player.getName());
 			ItemStack stick = new ItemStack(Material.STICK, 1);
 			PlayerInventory pi = player.getInventory();
+			player.setGameMode(GameMode.SURVIVAL);
 			pi.removeItem(stick);
 				db.query("DELETE FROM game WHERE playername='" + playerName + "'");
 				if (gamePlayerCount() == 1) {
 					getServer().broadcastMessage(ChatColor.GOLD + "Player " + playerName + " left the game, leaving " + gamePlayerCount() + " player left!");
-					
 					} else {
 					getServer().broadcastMessage(ChatColor.GOLD + "Player " + playerName + " left the game, leaving " + gamePlayerCount() + " players left.");
 			}
@@ -222,10 +255,13 @@ public class Main extends JavaPlugin {
 						test = 1 + object.nextInt(3);
 						if (test == 1) {
 							player.sendMessage(ChatColor.GREEN + "You are innocent.");
+							player.setGameMode(GameMode.SURVIVAL);
 						} else if (test == 2) {
 							player.sendMessage(ChatColor.RED + "You are a roughian");
+							player.setGameMode(GameMode.SURVIVAL);
 						} else if (test == 3) {
 							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
+							player.setGameMode(GameMode.SURVIVAL);
 							player.sendMessage(ChatColor.GOLD + "You have received a Lookin' Stick.");
 							ItemStack stick = new ItemStack(Material.STICK, 1);
 							PlayerInventory pi = player.getInventory();
@@ -240,10 +276,13 @@ public class Main extends JavaPlugin {
 						test = 1 + object.nextInt(3);
 						if (test == 1) {
 							player.sendMessage(ChatColor.GREEN + "You are innocent.");
+							player.setGameMode(GameMode.SURVIVAL);
 						} else if (test == 2) {
 							player.sendMessage(ChatColor.RED + "You are a roughian");
+							player.setGameMode(GameMode.SURVIVAL);
 						} else if (test == 3) {
 							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
+							player.setGameMode(GameMode.SURVIVAL);
 							player.sendMessage(ChatColor.GOLD + "You have received a Lookin' Stick.");
 							ItemStack stick = new ItemStack(Material.STICK, 1);
 							PlayerInventory pi = player.getInventory();
@@ -364,24 +403,6 @@ public class Main extends JavaPlugin {
 			e.printStackTrace();
 		}
 		this.getLogger().info("There are " + playerCount + " players stored in constant.db.");
-	}
-
-	/*
-	// Starting of the stick Sheriff's get.
-	public void onPlayerInteract(PlayerInteractEvent event) {
-		Player player = event.getPlayer();
-		int itemId = player.getItemInHand().getType().getId();
-		if (itemId == 280) {
-			arrestPlayer();
-		}
-	}
-
-	public void arrestPlayer() {
-
-	}
-	*/
-	public void playerDeath() {
-
 	}
 
 	public void playerLeaveGame(String playerName) {
