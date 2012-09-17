@@ -91,6 +91,7 @@ public class Main extends JavaPlugin {
 			@EventHandler
 			public void playerJoin(PlayerJoinEvent event) {
 				event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + Main.this.getConfig().getString("motd"));
+				event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + "It is recomended that you use our " + Main.this.getConfig().getString("voicetype") + " voice server at: " + Main.this.getConfig().getString("voiceip") + ".");
 				putPlayerConstant(event.getPlayer().getName());
 			}
 			
@@ -255,13 +256,13 @@ public class Main extends JavaPlugin {
 						test = 1 + object.nextInt(3);
 						if (test == 1) {
 							player.sendMessage(ChatColor.GREEN + "You are innocent.");
-							player.setGameMode(GameMode.SURVIVAL);
+							player.setGameMode(GameMode.ADVENTURE);
 						} else if (test == 2) {
 							player.sendMessage(ChatColor.RED + "You are a roughian");
-							player.setGameMode(GameMode.SURVIVAL);
+							player.setGameMode(GameMode.ADVENTURE);
 						} else if (test == 3) {
 							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
-							player.setGameMode(GameMode.SURVIVAL);
+							player.setGameMode(GameMode.ADVENTURE);
 							player.sendMessage(ChatColor.GOLD + "You have received a Lookin' Stick.");
 							ItemStack stick = new ItemStack(Material.STICK, 1);
 							PlayerInventory pi = player.getInventory();
@@ -276,13 +277,13 @@ public class Main extends JavaPlugin {
 						test = 1 + object.nextInt(3);
 						if (test == 1) {
 							player.sendMessage(ChatColor.GREEN + "You are innocent.");
-							player.setGameMode(GameMode.SURVIVAL);
+							player.setGameMode(GameMode.ADVENTURE);
 						} else if (test == 2) {
 							player.sendMessage(ChatColor.RED + "You are a roughian");
-							player.setGameMode(GameMode.SURVIVAL);
+							player.setGameMode(GameMode.ADVENTURE);
 						} else if (test == 3) {
 							player.sendMessage(ChatColor.GOLD + "You are a sheriff");
-							player.setGameMode(GameMode.SURVIVAL);
+							player.setGameMode(GameMode.ADVENTURE);
 							player.sendMessage(ChatColor.GOLD + "You have received a Lookin' Stick.");
 							ItemStack stick = new ItemStack(Material.STICK, 1);
 							PlayerInventory pi = player.getInventory();
