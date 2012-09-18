@@ -15,6 +15,7 @@
  * 		-> Message saying "Welcome to [map name here]!"
  * - Add functionality to leaderboard signs. Link to database.
  * - Add functionality to /spectate command.
+ * - Change colour of names above head in relation to health.
  * 
  * EXPLINATIONS:
  * 	- Number 1
@@ -64,6 +65,10 @@ public class Main extends JavaPlugin {
 	public int warpCounter = 0;
 	public Object config;	
 	
+	//Metrics Custom Graph
+	
+	
+	
 	// STARTUP
 	public void onEnable() {
 		this.getDataFolder().mkdir();
@@ -72,7 +77,6 @@ public class Main extends JavaPlugin {
 		sqlConnection();
 		sqlTableCheck();
 		logConstant();
-		
 		
 		PluginManager pm = this.getServer().getPluginManager();
 		pm.registerEvents(sl, this);
@@ -238,6 +242,7 @@ public class Main extends JavaPlugin {
 			player.removePotionEffect(PotionEffectType.FAST_DIGGING);
 			player.getInventory().clear();
 			player.setHealth(20);
+			player.setPlayerListName(ChatColor.WHITE + player.getName());
 				db.query("DELETE FROM game WHERE playername='" + playerName + "'");
 				if (gamePlayerCount() == 1) {
 					getServer().broadcastMessage(ChatColor.GOLD + "Player " + playerName + " left the game, leaving " + gamePlayerCount() + " player left!");
@@ -256,12 +261,13 @@ public class Main extends JavaPlugin {
 					Random object = new Random();
 					
 					//Things to do when player joins
+					player.setPlayerListName(ChatColor.BLUE + player.getName() + "*");
 					player.setGameMode(GameMode.ADVENTURE);
 					player.getInventory().clear();
 					player.setHealth(20);
 					player.setTicksLived(0);
 					player.setFoodLevel(20);
-					
+
 					int test;
 					for (int counter = 1; counter <= 1; counter++) {
 						test = 1 + object.nextInt(3);

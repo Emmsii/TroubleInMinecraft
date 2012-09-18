@@ -1,10 +1,15 @@
 package com.tammcd.troubleinminecraft;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 
 public class SignListener implements Listener{
 	
@@ -55,4 +60,17 @@ public class SignListener implements Listener{
 			sign.setLine(1, "Tamfoolery" + ":" + "2");
 		}
 	}
+	
+	@SuppressWarnings("unused") 
+    @EventHandler 
+    public void onPlayerDeathBlock(EntityDeathEvent event){ 
+        Entity e = event.getEntity(); 
+        Location pl = e.getLocation(); 
+        World world = e.getWorld(); 
+        Location bl = new Location(world, pl.getX(), pl.getY(), pl.getZ()); 
+        if(e instanceof Player){ 
+            Player player = (Player) e; 
+            bl.getBlock().setType(Material.SIGN_POST); 
+        } 
+    }
 }

@@ -25,6 +25,7 @@ public class PlayerHitListener implements Listener{
 		if(e instanceof Player){
 			Player player = (Player) e;
 			player.setPlayerListName(ChatColor.RED + player.getName() + " [DEAD]");
+			
 		}
 	}
  
