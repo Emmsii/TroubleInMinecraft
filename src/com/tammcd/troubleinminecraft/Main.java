@@ -93,15 +93,14 @@ public class Main extends JavaPlugin {
 		}
 
 		getServer().getPluginManager().registerEvents(new Listener() {
-			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerJoin(PlayerJoinEvent event) {
+				//Might be worth adding an if is set for these
 				event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + Main.this.getConfig().getString("motd"));
 				event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + "It is recomended that you use our " + Main.this.getConfig().getString("voicetype") + " voice server at: " + Main.this.getConfig().getString("voiceip") + ".");
 				putPlayerConstant(event.getPlayer().getName());
 			}
 			
-			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerLeave(PlayerQuitEvent event) {
 				String playerName = event.getPlayer().getName();
