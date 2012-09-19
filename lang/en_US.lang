@@ -15,6 +15,43 @@ help.timspawn=Sets the spawn for matches.
 help.timdeath=Sets the death location.
 help.timarrest=Sets the jail location.
 
+error.command.noaccess=You do not have the permissions to use that command.
+error.ingame=You have already joined the game!
+
 timspawn.set.one=Spawn
 timspawn.set.two=has been set.
 timspawn.exceed=Spawn limit exceeded, unable to create spawn.
+
+timdeath.set=Death point has been set.
+
+timarrest.set=Jail spawn has been set.
+
+timfo.version=Trouble In Minecraft Version
+timfo.creators=By Tamfoolery and Emmsii
+
+stats.title=-----Stats-----
+stats.kills=Kills:
+stats.deaths=Deaths:
+stats.arrests=Arrests:
+
+leave.message=You have left the game.
+
+left.one.one=Player
+left.one.two=left the game, leaving
+left.one.three=player left!
+
+left.two.one=Player
+left.two.two=left the game, leaving
+left.two.three=players left!
+
+join.message=You have joined a game in progress.
+
+type.innocent=You are innocent.
+type.roughian=You are a roughian.
+type.sheriff=You are a sheriff
+type.sheriff.stick=You have received a Lookin' Stick.
+
+count.one.one=There is now
+count.one.two=player in game.
+count.two.one=There are now
+count.two.two=players in game.
