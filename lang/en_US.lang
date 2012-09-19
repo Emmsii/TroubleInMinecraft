@@ -1,0 +1,20 @@
+log.version=has been enabled!
+log.disable.one=version:
+log.disable.two=has been disabled!
+
+motd.ts.one=It is recommended that you use our
+motd.ts.two=voice server at:
+
+player.spectate=You are now spectating.
+
+help.title=Trouble in Minecraft Help
+help.join=Player will join ongoing match.
+help.stats=Look at your stats (Not implemented)
+help.timfo=Displays the version of TIM.
+help.timspawn=Sets the spawn for matches.
+help.timdeath=Sets the death location.
+help.timarrest=Sets the jail location.
+
+timspawn.set.one=Spawn
+timspawn.set.two=has been set.
+timspawn.exceed=Spawn limit exceeded, unable to create spawn.

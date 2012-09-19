@@ -93,6 +93,7 @@ public class Main extends JavaPlugin {
 		}
 
 		getServer().getPluginManager().registerEvents(new Listener() {
+			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerJoin(PlayerJoinEvent event) {
 				//Might be worth adding an if is set for these
@@ -101,6 +102,7 @@ public class Main extends JavaPlugin {
 				putPlayerConstant(event.getPlayer().getName());
 			}
 			
+			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerLeave(PlayerQuitEvent event) {
 				String playerName = event.getPlayer().getName();
