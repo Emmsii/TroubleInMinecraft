@@ -60,14 +60,16 @@ public class Main extends JavaPlugin {
 	private boolean gameRunning = false;
 	public final SignListener sl = new SignListener(this);
 	public final PlayerHitListener phl = new PlayerHitListener(this);
+	public final JoinListener jl = new JoinListener(this);
 	public final Location[] warpLocations = new Location[100];
 	public final String[] warpName = new String[100];
 	public int warpCounter = 0;
 	public Object config;	
 	
-	//Metrics Custom Graph
-	
-	
+	//Update
+	public static boolean update = false;
+	public static String name = "";
+	public static long size = 0;
 	
 	// STARTUP
 	public void onEnable() {
@@ -78,9 +80,15 @@ public class Main extends JavaPlugin {
 		sqlTableCheck();
 		logConstant();
 		
+		Updater updater = new Updater(this, "trouble-in-minecraft", this.getFile(), Updater.UpdateType.NO_DOWNLOAD, true);
+		update = updater.getResult() == Updater.UpdateResult.UPDATE_AVAILABLE;
+		name = updater.getLatestVersionString();
+		size = updater.getFileSize();
+		
 		PluginManager pm = this.getServer().getPluginManager();
 		pm.registerEvents(sl, this);
 		pm.registerEvents(phl, this);
+		pm.registerEvents(jl, this);
 
 		PluginDescriptionFile pdfFile = this.getDescription();
 
@@ -131,6 +139,12 @@ public class Main extends JavaPlugin {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		}
+		
+		if(label.equalsIgnoreCase("update")){
+			Updater updater = new Updater(this, "trouble-in-minecraft", this.getFile(), Updater.UpdateType.NO_DOWNLOAD, true);
+			player.sendMessage(ChatColor.RED + "Update downloaded.");
+			player.sendMessage(ChatColor.RED + "Please type /reload all or restart the server to use the new version..");
 		}
 		
 		if(label.equalsIgnoreCase("spectate")){

@@ -1,5 +1,5 @@
 name: Trouble in Minecraft
-version: 0.0.27a
+version: 0.0.28a
 main: com.tammcd.troubleinminecraft.Main
 database: true
 commands:
