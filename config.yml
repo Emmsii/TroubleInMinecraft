@@ -2,3 +2,7 @@ motd: Type /join to join the game!
 voicetype: 
 voiceip: 
 language: 
+#Possible lang files:
+#	en_US
+#	fr_FR (totaly not even real)
+#	lots more

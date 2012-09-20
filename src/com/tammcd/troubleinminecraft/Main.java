@@ -267,6 +267,7 @@ public class Main extends JavaPlugin {
 		}
 
 		if (label.equalsIgnoreCase("leave")) {
+			//player.sendMessage(ChatColor.GOLD + "You have left the game.");
 			player.sendMessage(ChatColor.GOLD + "You have left the game.");
 			player.setPlayerListName(ChatColor.WHITE + player.getName());
 			ItemStack stick = new ItemStack(Material.STICK, 1);
@@ -319,6 +320,13 @@ public class Main extends JavaPlugin {
 					}
 				} else {
 					player.sendMessage(ChatColor.GOLD + "You have joined! The game will start shortly...");
+					//Things to do when player joins
+					player.setPlayerListName(ChatColor.BLUE + player.getName() + "*");
+					player.setGameMode(GameMode.ADVENTURE);
+					player.getInventory().clear();
+					player.setHealth(20);
+					player.setTicksLived(0);
+					player.setFoodLevel(20);
 					Random object = new Random();
 					int test;
 					for (int counter = 1; counter <= 1; counter++) {
