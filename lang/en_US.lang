@@ -17,6 +17,23 @@ help.timarrest=Sets the jail location.
 
 error.command.noaccess=You do not have the permissions to use that command.
 error.ingame=You have already joined the game!
+error.drop=You cannot drop your Lookin' Stick.
+error.arrest=Watchu doin! You can't arrest that!
+error.alive=Watchu doin! You can't see how many ticks this has lived!
+
+sign.lead.kill=Top Kills:
+sign.lead.death=Top Deaths:
+sign.lead.arrest=Top Arrests:
+sign.change.kill=The sign has been turned into a leaderboard for kills.
+sign.change.death=The sign has been turned into a leaderboard for deaths.
+sign.change.arrest=The sign has been turned into a leaderboard for arrests.
+
+
+arrest.player1=You have arrested
+arrest.player2=has arrested you.
+
+alive.length=has been alive for
+alive.check=has seen how many ticks you have been alive.
 
 timspawn.set.one=Spawn
 timspawn.set.two=has been set.
@@ -45,6 +62,11 @@ left.two.two=left the game, leaving
 left.two.three=players left!
 
 join.message=You have joined a game in progress.
+
+update.available=An update for Trouble in Minecraft is abvailable
+update.start=Type /update if you would like to update.
+update.complete=Update downloaded.
+update.reload=Please type /reload all or restart the server to use the new version.
 
 type.innocent=You are innocent.
 type.roughian=You are a roughian.

@@ -24,8 +24,7 @@ public class PlayerHitListener implements Listener{
 		Entity e = event.getEntity();
 		if(e instanceof Player){
 			Player player = (Player) e;
-			player.setPlayerListName(ChatColor.RED + player.getName() + " [DEAD]");
-			
+			player.setPlayerListName(ChatColor.RED + player.getName() + " [DEAD]");			
 		}
 	}
  

@@ -19,6 +19,8 @@ import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
+
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
@@ -280,6 +282,7 @@ public class Updater
                 if(announce & (percent % 10 == 0))
                 {
                     plugin.getLogger().info("Downloading update: " + percent + "% of " + fileLength + " bytes.");
+                    Bukkit.broadcastMessage("Downloading update: " + percent + "% of " + fileLength + " bytes.");
                 }
             }
             //Just a quick check to make sure we didn't leave any files from last time...

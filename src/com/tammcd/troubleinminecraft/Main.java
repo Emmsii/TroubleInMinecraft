@@ -144,7 +144,7 @@ public class Main extends JavaPlugin {
 		if(label.equalsIgnoreCase("update")){
 			Updater updater = new Updater(this, "trouble-in-minecraft", this.getFile(), Updater.UpdateType.NO_DOWNLOAD, true);
 			player.sendMessage(ChatColor.RED + "Update downloaded.");
-			player.sendMessage(ChatColor.RED + "Please type /reload all or restart the server to use the new version..");
+			player.sendMessage(ChatColor.RED + "Please type /reload all or restart the server to use the new version.");
 		}
 		
 		if(label.equalsIgnoreCase("spectate")){
