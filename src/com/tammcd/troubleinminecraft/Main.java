@@ -64,27 +64,27 @@ public class Main extends JavaPlugin {
 	public final Location[] warpLocations = new Location[100];
 	public final String[] warpName = new String[100];
 	public int warpCounter = 0;
-	public Object config;	
-	
-	//Update
+	public Object config;
+
+	// Update
 	public static boolean update = false;
 	public static String name = "";
 	public static long size = 0;
-	
+
 	// STARTUP
 	public void onEnable() {
 		this.getDataFolder().mkdir();
 		this.saveDefaultConfig();
-		
+
 		sqlConnection();
 		sqlTableCheck();
 		logConstant();
-		
+
 		Updater updater = new Updater(this, "trouble-in-minecraft", this.getFile(), Updater.UpdateType.NO_DOWNLOAD, true);
 		update = updater.getResult() == Updater.UpdateResult.UPDATE_AVAILABLE;
 		name = updater.getLatestVersionString();
 		size = updater.getFileSize();
-		
+
 		PluginManager pm = this.getServer().getPluginManager();
 		pm.registerEvents(sl, this);
 		pm.registerEvents(phl, this);
@@ -97,19 +97,23 @@ public class Main extends JavaPlugin {
 		try {
 			Metrics metrics = new Metrics(this);
 			metrics.start();
-			} catch (IOException e) {
+		} catch (IOException e) {
 		}
 
 		getServer().getPluginManager().registerEvents(new Listener() {
 			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerJoin(PlayerJoinEvent event) {
-				//Might be worth adding an if is set for these
-				event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + Main.this.getConfig().getString("motd"));
-				event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + "It is recomended that you use our " + Main.this.getConfig().getString("voicetype") + " voice server at: " + Main.this.getConfig().getString("voiceip") + ".");
+				if (Main.this.getConfig().getString("motd") != null) {
+					event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + Main.this.getConfig().getString("motd"));
+				}
+
+				if (Main.this.getConfig().getString("voicetype") != null && Main.this.getConfig().getString("voiceip") != null) {
+					event.getPlayer().sendMessage(ChatColor.DARK_PURPLE + "It is recomended that you use our " + Main.this.getConfig().getString("voicetype") + " voice server at: " + Main.this.getConfig().getString("voiceip") + ".");
+				}
 				putPlayerConstant(event.getPlayer().getName());
 			}
-			
+
 			@SuppressWarnings("unused")
 			@EventHandler
 			public void playerLeave(PlayerQuitEvent event) {
@@ -125,7 +129,7 @@ public class Main extends JavaPlugin {
 		this.logger.info(pdfFile.getName() + " (version: " + pdfFile.getVersion() + ") has been disabled!");
 		db.close();
 	}
-	
+
 	@SuppressWarnings({ "unused" })
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		Player player = (Player) sender;
@@ -140,44 +144,46 @@ public class Main extends JavaPlugin {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		if(label.equalsIgnoreCase("update")){
+
+		if (label.equalsIgnoreCase("update")) {
 			Updater updater = new Updater(this, "trouble-in-minecraft", this.getFile(), Updater.UpdateType.NO_DOWNLOAD, true);
 			player.sendMessage(ChatColor.RED + "Update downloaded.");
 			player.sendMessage(ChatColor.RED + "Please type /reload all or restart the server to use the new version.");
 		}
-		
-		if(label.equalsIgnoreCase("spectate")){
+
+		if (label.equalsIgnoreCase("spectate")) {
 			player.sendMessage("You are now spectating.");
 		}
-		
-		//This command spawns a chest above your head with all of your inventory in it.
-		if(label.equalsIgnoreCase("chest")){
-			if(sender instanceof Player){
+
+		// This command spawns a chest above your head with all of your
+		// inventory in it.
+		if (label.equalsIgnoreCase("chest")) {
+			if (sender instanceof Player) {
 				Player player1 = (Player) sender;
 				Location pl = player.getLocation();
 				World world = player.getWorld();
 				Location cl = new Location(world, pl.getX(), pl.getY() + 2, pl.getZ());
-				
+
 				cl.getBlock().setType(Material.CHEST);
 				Chest chest = (Chest) cl.getBlock().getState();
-				
+
 				ItemStack[] inventoryBefore = player.getInventory().getContents();
 				ItemStack[] chestContents = new ItemStack[inventoryBefore.length];
-				
-				for(int i = 0; i < player.getInventory().getSize(); i++){
+
+				for (int i = 0; i < player.getInventory().getSize(); i++) {
 					chestContents[i] = inventoryBefore[i];
 				}
-				
-				for(int i = 0; i < chest.getInventory().getSize(); i++){
-					if(chestContents[i] != null){
+
+				for (int i = 0; i < chest.getInventory().getSize(); i++) {
+					if (chestContents[i] != null) {
 						chest.getInventory().addItem(chestContents[i]);
 					}
 				}
 				player.getInventory().clear();
-			}return true;
+			}
+			return true;
 		}
-		
+
 		if (label.equalsIgnoreCase("timhelp")) {
 			if (player.isOp()) {
 				// Might set the help as a list in config and pull it from
@@ -241,13 +247,25 @@ public class Main extends JavaPlugin {
 		}
 
 		if (label.equalsIgnoreCase("stats")) {
+			playerName = player.getName();
+			String playerKills = null, playerDeaths = null, playerArrests = null;
+			try {
+				ResultSet playerStatsRS = db.query("SELECT EXISTS(SELECT * FROM game WHERE playername='" + playerName + "')");
+				while (playerStatsRS.next()) {
+					playerKills = playerStatsRS.getString("playerKills");
+					playerDeaths = playerStatsRS.getString("playerDeaths");
+					playerArrests = playerStatsRS.getString("playerArrests");
+				}
+			} catch (Exception e) {
+			}
+
 			player.sendMessage(ChatColor.GOLD + "-----Stats-----");
-			player.sendMessage(ChatColor.GOLD + "Kills: 0");
-			player.sendMessage(ChatColor.GOLD + "Deaths: 0");
-			player.sendMessage(ChatColor.GOLD + "Arrests: 0");
+			player.sendMessage(ChatColor.GOLD + "Kills: " + playerKills);
+			player.sendMessage(ChatColor.GOLD + "Deaths: " + playerDeaths);
+			player.sendMessage(ChatColor.GOLD + "Arrests: " + playerArrests);
 
 		}
-		
+
 		if (label.equalsIgnoreCase("leave")) {
 			player.sendMessage(ChatColor.GOLD + "You have left the game.");
 			player.setPlayerListName(ChatColor.WHITE + player.getName());
@@ -258,15 +276,15 @@ public class Main extends JavaPlugin {
 			player.getInventory().clear();
 			player.setHealth(20);
 			player.setPlayerListName(ChatColor.WHITE + player.getName());
-				db.query("DELETE FROM game WHERE playername='" + playerName + "'");
-				if (gamePlayerCount() == 1) {
-					getServer().broadcastMessage(ChatColor.GOLD + "Player " + playerName + " left the game, leaving " + gamePlayerCount() + " player left!");
-					} else {
-					getServer().broadcastMessage(ChatColor.GOLD + "Player " + playerName + " left the game, leaving " + gamePlayerCount() + " players left.");
+			db.query("DELETE FROM game WHERE playername='" + playerName + "'");
+			if (gamePlayerCount() == 1) {
+				getServer().broadcastMessage(ChatColor.GOLD + "Player " + playerName + " left the game, leaving " + gamePlayerCount() + " player left!");
+			} else {
+				getServer().broadcastMessage(ChatColor.GOLD + "Player " + playerName + " left the game, leaving " + gamePlayerCount() + " players left.");
 			}
-			
+
 		}
-		
+
 		// END
 
 		if (label.equalsIgnoreCase("join")) {
@@ -274,8 +292,8 @@ public class Main extends JavaPlugin {
 				if (gameRunning) {
 					player.sendMessage(ChatColor.GOLD + "You have joined a game in progress.");
 					Random object = new Random();
-					
-					//Things to do when player joins
+
+					// Things to do when player joins
 					player.setPlayerListName(ChatColor.BLUE + player.getName() + "*");
 					player.setGameMode(GameMode.ADVENTURE);
 					player.getInventory().clear();
@@ -352,7 +370,7 @@ public class Main extends JavaPlugin {
 	public void removePlayer(Player player, String playerName) {
 		playerLeaveGame(playerName);
 	}
-	
+
 	public int gamePlayerCount() {
 		int playerCount = 0;
 
@@ -367,7 +385,7 @@ public class Main extends JavaPlugin {
 
 		return (playerCount);
 	}
-	
+
 	public void sqlConnection() {
 		db = new SQLite(this.getLogger(), "Trouble in Minecraft", "game", this.getDataFolder().getPath());
 
@@ -385,7 +403,7 @@ public class Main extends JavaPlugin {
 		} else {
 			db.query("CREATE TABLE game (id INT PRIMARY KEY, playername VARCHAR(255), isSheriff VARCHAR(5), isDead VARCHAR(5), isRoughian VARCHAR(5))");
 			this.getLogger().info("[Trouble in Minecraft] 'game' table has been created!");
-			db.query("CREATE TABLE constant (id INT PRIMARY KEY, playername VARCHAR(255), karma INT, playCount INT, sheriffCount INT, roughianCount INT, deathCount INT)");
+			db.query("CREATE TABLE constant (id INT PRIMARY KEY, playername VARCHAR(255), karma INT, playCount INT, sheriffCount INT, roughianCount INT, deathCount INT, killCount INT, arrestCount INT)");
 			this.getLogger().info("[Trouble in Minecraft] 'constant' table has been created!");
 		}
 	}
@@ -413,7 +431,7 @@ public class Main extends JavaPlugin {
 				e.printStackTrace();
 			}
 
-			db.query("INSERT INTO constant (id, playername, karma, playCount, sheriffCount, roughianCount, deathCount) VALUES(" + (playerCount + 1) + ", '" + playerName + "', 1000, 0, 0, 0, 0)");
+			db.query("INSERT INTO constant (id, playername, karma, playCount, sheriffCount, roughianCount, deathCount, killCount, arrestCound) VALUES(" + (playerCount + 1) + ", '" + playerName + "', 1000, 0, 0, 0, 0, 0, 0)");
 			this.getLogger().info("Player " + playerName + " has been added to constant.db");
 		} else {
 			this.getLogger().info("Player " + playerName + " has been found in constant.db, not adding.");
@@ -438,8 +456,8 @@ public class Main extends JavaPlugin {
 		db.query("DELETE FROM game WHERE playername='" + playerName + "'");
 		if (gamePlayerCount() == 1) {
 			getServer().broadcastMessage("Player " + playerName + " left the game, leaving " + gamePlayerCount() + " player left!");
-			
-			} else {
+
+		} else {
 			getServer().broadcastMessage("Player " + playerName + " left the game, leaving " + gamePlayerCount() + " players left.");
 		}
 	}
